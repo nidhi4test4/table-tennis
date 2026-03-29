@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certificate Generator — Mapsko Casabella Table Tennis Tournament 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #0a0e2e;
+      color: #e8e8e8;
+      min-height: 100vh;
+    }
+
+    /* ========== PAGE HEADER ========== */
+    .page-header {
+      background: linear-gradient(135deg, #0d1540 0%, #1a237e 50%, #0d1540 100%);
+      border-bottom: 3px solid #c9a84c;
+      padding: 20px 30px;
+      text-align: center;
+      position: relative;
+    }
+    .page-header .back-link {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #c9a84c;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .page-header .back-link:hover { color: #f0d080; }
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #c9a84c;
+      letter-spacing: 1px;
+    }
+    .page-header p {
+      font-size: 0.95rem;
+      color: #90a4c8;
+      margin-top: 4px;
+    }
+
+    /* ========== CONTROLS PANEL ========== */
+    .controls-wrapper {
+      background: #0d1540;
+      border-bottom: 2px solid #1e2d6e;
+      padding: 24px 30px;
+    }
+    .controls-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #90a4c8;
+      margin-bottom: 6px;
+    }
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group input[type="date"] {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0a0e2e;
+      border: 1.5px solid #1e2d6e;
+      border-radius: 8px;
+      color: #e8e8e8;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group select:focus,
+    .form-group input:focus {
+      border-color: #c9a84c;
+    }
+    .form-group select option { background: #0d1540; }
+
+    .controls-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #c9a84c, #e8c96a);
+      color: #0a0e2e;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 15px rgba(201,168,76,0.35);
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(201,168,76,0.5);
+    }
+    .btn-example {
+      background: transparent;
+      border: 1.5px solid #1e2d6e;
+      color: #90a4c8;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-example:hover {
+      border-color: #c9a84c;
+      color: #c9a84c;
+    }
+    .controls-actions-label {
+      font-size: 0.78rem;
+      color: #556;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    /* ========== PREVIEW CONTAINER ========== */
+    .preview-wrapper {
+      padding: 30px 20px 50px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .preview-scale-container {
+      transform-origin: top center;
+    }
+
+    /* ========== CERTIFICATE ========== */
+    /* A4 landscape: 297mm × 210mm = 1122.5px × 793.7px at 96dpi — we use 1050 × 743 for screen */
+    .certificate {
+      width: 1050px;
+      height: 743px;
+      position: relative;
+      background: #fffdf5;
+      font-family: 'Playfair Display', 'Georgia', serif;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+
+    /* Ping-pong watermark pattern */
+    .certificate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(0,0,0,0.035) 4px, transparent 4px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Diagonal watermark text */
+    .certificate .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-35deg);
+      font-size: 68px;
+      font-weight: 700;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: rgba(201,168,76,0.065);
+      white-space: nowrap;
+      letter-spacing: 12px;
+      pointer-events: none;
+      z-index: 1;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* ---- OUTER BORDER ---- */
+    .certificate .border-outer {
+      position: absolute;
+      inset: 12px;
+      border: 3px solid var(--cert-color, #c9a84c);
+      z-index: 2;
+    }
+    /* ---- INNER BORDER ---- */
+    .certificate .border-inner {
+      position: absolute;
+      inset: 20px;
+      border: 1.5px solid var(--cert-color, #c9a84c);
+      z-index: 2;
+    }
+
+    /* Corner ornaments */
+    .certificate .corner {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      z-index: 3;
+      font-size: 26px;
+      line-height: 1;
+      color: var(--cert-color, #c9a84c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .certificate .corner-tl { top: 6px; left: 6px; }
+    .certificate .corner-tr { top: 6px; right: 6px; transform: scaleX(-1); }
+    .certificate .corner-bl { bottom: 6px; left: 6px; transform: scaleY(-1); }
+    .certificate .corner-br { bottom: 6px; right: 6px; transform: scale(-1); }
+
+    /* ---- CONTENT AREA ---- */
+    .certificate .cert-content {
+      position: absolute;
+      inset: 28px;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 40px 8px;
+    }
+
+    /* TOP SECTION */
+    .cert-top {
+      text-align: center;
+      width: 100%;
+    }
+    .cert-org-logo {
+      font-size: 38px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    .cert-org-name {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--cert-color, #c9a84c);
+      margin-bottom: 1px;
+    }
+    .cert-org-tagline {
+      font-family: 'Poppins', sans-serif;
+      font-size: 9.5px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #555;
+      font-weight: 500;
+    }
+
+    /* DIVIDER */
+    .cert-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0;
+    }
+    .cert-divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--cert-color, #c9a84c), transparent);
+    }
+    .cert-divider-ornament {
+      color: var(--cert-color, #c9a84c);
+      font-size: 16px;
+    }
+
+    /* BADGE */
+    .cert-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cert-color, #c9a84c);
+      color: #fff;
+      padding: 4px 22px;
+      border-radius: 30px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* TITLE */
+    .cert-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #1a237e;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    /* INTRO */
+    .cert-intro {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 11.5px;
+      color: #444;
+      text-align: center;
+      font-style: italic;
+      letter-spacing: 0.3px;
+    }
+
+    /* PLAYER NAME */
+    .cert-player-name {
+      font-family: 'Great Vibes', cursive;
+      font-size: 58px;
+      color: var(--cert-color, #c9a84c);
+      text-align: center;
+      line-height: 1.1;
+      margin: 2px 0;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* BODY TEXT */
+    .cert-body {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 12.5px;
+      color: #2c2c2c;
+      text-align: center;
+      line-height: 1.65;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .cert-body strong {
+      color: #1a237e;
+      font-weight: 700;
+    }
+    .cert-body .event-name {
+      color: var(--cert-color, #c9a84c);
+    }
+
+    /* BOTTOM SECTION */
+    .cert-bottom {
+      width: 100%;
+    }
+    .cert-date {
+      text-align: center;
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 11px;
+      color: #555;
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+
+    /* Signatures */
+    .cert-signatures {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      padding: 0 20px;
+    }
+    .cert-sig {
+      text-align: center;
+      width: 180px;
+    }
+    .cert-sig-line {
+      width: 100%;
+      height: 1px;
+      background: #888;
+      margin-bottom: 5px;
+    }
+    .cert-sig-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    /* Official seal */
+    .cert-seal {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2.5px solid var(--cert-color, #c9a84c);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: rgba(255,253,245,0.9);
+      position: relative;
+    }
+    .cert-seal::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 1px dashed var(--cert-color, #c9a84c);
+    }
+    .cert-seal-emoji { font-size: 22px; }
+    .cert-seal-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 6px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cert-color, #c9a84c);
+      line-height: 1.3;
+      margin-top: 2px;
+    }
+
+    /* Paddle decorations on sides */
+    .cert-deco-left,
+    .cert-deco-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 24px;
+      opacity: 0.12;
+      z-index: 3;
+      writing-mode: vertical-rl;
+      letter-spacing: 6px;
+      color: var(--cert-color, #c9a84c);
+    }
+    .cert-deco-left { left: 30px; }
+    .cert-deco-right { right: 30px; transform: translateY(-50%) rotate(180deg); }
+
+    /* ========== CERTIFICATE TYPE THEMES ========== */
+    .cert-winner    { --cert-color: #c9a84c; --cert-color-light: #f5e8b0; }
+    .cert-runner    { --cert-color: #8a8a8a; --cert-color-light: #e0e0e0; }
+    .cert-runner .cert-player-name { color: #6a6a6a; }
+    .cert-runner .cert-title { color: #2a3a5e; }
+    .cert-participation { --cert-color: #1a237e; --cert-color-light: #c5cae9; }
+    .cert-participation .cert-player-name { color: #1a237e; }
+    .cert-recognition { --cert-color: #6a1b9a; --cert-color-light: #e1bee7; }
+    .cert-recognition .cert-player-name { color: #6a1b9a; }
+
+    /* ========== PRINT STYLES ========== */
+    @media print {
+      body { background: white; }
+      .page-header,
+      .controls-wrapper,
+      .preview-wrapper > *:not(.preview-scale-container) { display: none !important; }
+      .preview-wrapper { padding: 0; }
+      .preview-scale-container {
+        transform: none !important;
+        width: auto !important;
+      }
+      .certificate {
+        width: 297mm;
+        height: 210mm;
+        page-break-inside: avoid;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+    }
+
+    /* ========== RESPONSIVE SCALING ========== */
+    @media (max-width: 1120px) {
+      .preview-scale-container { transform: scale(0.82); }
+    }
+    @media (max-width: 900px) {
+      .preview-scale-container { transform: scale(0.65); }
+    }
+    @media (max-width: 700px) {
+      .preview-scale-container { transform: scale(0.48); }
+    }
+    @media (max-width: 500px) {
+      .preview-scale-container { transform: scale(0.35); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== PAGE HEADER ========== -->
+<header class="page-header">
+  <a href="./index.html" class="back-link">← Back to Tournament Dashboard</a>
+  <h1>🏓 Mapsko Casabella — Certificate Generator</h1>
+  <p>Table Tennis Tournament 2026</p>
+</header>
+
+<!-- ========== CONTROLS PANEL ========== -->
+<div class="controls-wrapper">
+  <div class="controls-inner">
+    <div class="controls-grid">
+      <div class="form-group">
+        <label for="certType">Certificate Type</label>
+        <select id="certType" onchange="updateCertificate()">
+          <option value="winner">🥇 Winner</option>
+          <option value="runner">🥈 Runner Up</option>
+          <option value="participation">🎖️ Participation</option>
+          <option value="recognition">⭐ Special Recognition</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="playerName">Player Name</label>
+        <input type="text" id="playerName" placeholder="Enter player name" oninput="updateCertificate()" />
+      </div>
+      <div class="form-group">
+        <label for="eventName">Event Name</label>
+        <select id="eventName" onchange="updateCertificate()">
+          <option value="Under 15 Boys Singles">Under 15 Boys Singles</option>
+          <option value="Under 15 Girls Singles">Under 15 Girls Singles</option>
+          <option value="Under 15 Boys Doubles">Under 15 Boys Doubles</option>
+          <option value="Men's Singles (15–55)">Men's Singles (15–55)</option>
+          <option value="Women's Singles (15–55)">Women's Singles (15–55)</option>
+          <option value="Men's Doubles (15–55)">Men's Doubles (15–55)</option>
+          <option value="Mixed Doubles (15–55)">Mixed Doubles (15–55)</option>
+          <option value="Senior Men's Singles (55+)">Senior Men's Singles (55+)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="certDate">Date</label>
+        <input type="date" id="certDate" value="2026-03-29" onchange="updateCertificate()" />
+      </div>
+    </div>
+
+    <div class="controls-actions">
+      <button class="btn-print" onclick="window.print()">🖨️ Print Certificate</button>
+      <span class="controls-actions-label">Quick Fill:</span>
+      <button class="btn-example" data-type="winner" data-player="Ayush Takkar" data-event="Men's Singles (15–55)">🥇 Ayush Takkar — Men's Singles</button>
+      <button class="btn-example" data-type="runner" data-player="Priya Sharma" data-event="Women's Singles (15–55)">🥈 Runner Up Example</button>
+      <button class="btn-example" data-type="participation" data-player="Rahul Verma" data-event="Under 15 Boys Singles">🎖️ Participation Example</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CERTIFICATE PREVIEW ========== -->
+<div class="preview-wrapper">
+  <div class="preview-scale-container" id="scaleContainer">
+
+    <div class="certificate cert-winner" id="certificate">
+      <!-- Watermark -->
+      <div class="watermark">Mapsko Casabella</div>
+
+      <!-- Borders -->
+      <div class="border-outer"></div>
+      <div class="border-inner"></div>
+
+      <!-- Corner ornaments -->
+      <div class="corner corner-tl">❧</div>
+      <div class="corner corner-tr">❧</div>
+      <div class="corner corner-bl">❧</div>
+      <div class="corner corner-br">❧</div>
+
+      <!-- Side decorations -->
+      <div class="cert-deco-left">🏓 🏓 🏓</div>
+      <div class="cert-deco-right">🏓 🏓 🏓</div>
+
+      <!-- Certificate content -->
+      <div class="cert-content">
+
+        <!-- TOP -->
+        <div class="cert-top">
+          <div class="cert-org-logo">🏓</div>
+          <div class="cert-org-name">Mapsko Casabella</div>
+          <div class="cert-org-tagline">Society Table Tennis Tournament 2026</div>
+        </div>
+
+        <!-- DIVIDER 1 -->
+        <div class="cert-divider">
+          <div class="cert-divider-line"></div>
+          <div class="cert-divider-ornament">✦</div>
+          <div class="cert-divider-ornament">✦</div>
+          <div class="cert-divider-ornament">✦</div>
+          <div class="cert-divider-line"></div>
+        </div>
+
+        <!-- BADGE -->
+        <div>
+          <div class="cert-badge" id="certBadge">🥇 &nbsp;WINNER</div>
+        </div>
+
+        <!-- TITLE -->
+        <div class="cert-title" id="certTitle">Certificate of Achievement</div>
+
+        <!-- INTRO -->
+        <div class="cert-intro">This is to proudly certify that</div>
+
+        <!-- PLAYER NAME -->
+        <div class="cert-player-name" id="certPlayerName">Player Name</div>
+
+        <!-- DIVIDER 2 -->
+        <div class="cert-divider">
+          <div class="cert-divider-line"></div>
+          <div class="cert-divider-ornament">❖</div>
+          <div class="cert-divider-line"></div>
+        </div>
+
+        <!-- BODY TEXT -->
+        <div class="cert-body" id="certBody">
+          has won the <span class="event-name" id="certEventSpan"><strong>Men's Singles (15–55)</strong></span> event at the
+          <strong>Mapsko Casabella Society Table Tennis Tournament 2026</strong>
+          and is hereby awarded the title of <strong>Champion</strong>.
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="cert-bottom">
+          <div class="cert-date" id="certDate">Date: 29th March 2026</div>
+          <div class="cert-divider" style="margin-bottom: 8px;">
+            <div class="cert-divider-line"></div>
+            <div class="cert-divider-ornament" style="font-size:11px;">✦ ✦ ✦</div>
+            <div class="cert-divider-line"></div>
+          </div>
+          <div class="cert-signatures">
+            <div class="cert-sig">
+              <div class="cert-sig-line"></div>
+              <div class="cert-sig-label">Tournament Director</div>
+            </div>
+            <div class="cert-seal">
+              <div class="cert-seal-emoji">🏓</div>
+              <div class="cert-seal-text">MAPSKO<br>CASABELLA<br>2026</div>
+            </div>
+            <div class="cert-sig">
+              <div class="cert-sig-line"></div>
+              <div class="cert-sig-label">Society President</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /cert-content -->
+    </div><!-- /certificate -->
+
+  </div><!-- /preview-scale-container -->
+</div><!-- /preview-wrapper -->
+
+<script>
+  // Certificate configuration per type
+  const certConfig = {
+    winner: {
+      cssClass: 'cert-winner',
+      badge: '🥇 &nbsp;WINNER',
+      title: 'Certificate of Achievement',
+      bodyFn: (player, event) =>
+        `has won the <span class="event-name"><strong>${event}</strong></span> event at the
+        <strong>Mapsko Casabella Society Table Tennis Tournament 2026</strong>
+        and is hereby awarded the title of <strong>Champion</strong>.`,
+    },
+    runner: {
+      cssClass: 'cert-runner',
+      badge: '🥈 &nbsp;RUNNER UP',
+      title: 'Certificate of Achievement',
+      bodyFn: (player, event) =>
+        `has achieved <strong>Runner Up</strong> position in the
+        <span class="event-name"><strong>${event}</strong></span> event at the
+        <strong>Mapsko Casabella Society Table Tennis Tournament 2026</strong>.`,
+    },
+    participation: {
+      cssClass: 'cert-participation',
+      badge: '🎖️ &nbsp;PARTICIPANT',
+      title: 'Certificate of Participation',
+      bodyFn: (player, event) =>
+        `has participated in the
+        <strong>Mapsko Casabella Society Table Tennis Tournament 2026</strong>
+        and demonstrated great sportsmanship and dedication.`,
+    },
+    recognition: {
+      cssClass: 'cert-recognition',
+      badge: '⭐ &nbsp;SPECIAL RECOGNITION',
+      title: 'Certificate of Special Recognition',
+      bodyFn: (player, event) =>
+        `is recognized for outstanding performance and exemplary sportsmanship at the
+        <strong>Mapsko Casabella Society Table Tennis Tournament 2026</strong>.`,
+    },
+  };
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '29th March 2026';
+    const d = new Date(dateStr + 'T00:00:00');
+    const day = d.getDate();
+    const suffix = (day === 1 || day === 21 || day === 31) ? 'st'
+                 : (day === 2 || day === 22) ? 'nd'
+                 : (day === 3 || day === 23) ? 'rd' : 'th';
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    return `${day}${suffix} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  }
+
+  function updateCertificate() {
+    const type      = document.getElementById('certType').value;
+    const rawName   = document.getElementById('playerName').value.trim();
+    const eventName = document.getElementById('eventName').value;
+    const dateVal   = document.getElementById('certDate').value;
+
+    const playerName = rawName || 'Player Name';
+    const cfg = certConfig[type];
+    const cert = document.getElementById('certificate');
+
+    // Swap class
+    cert.className = 'certificate ' + cfg.cssClass;
+
+    // Update badge
+    document.getElementById('certBadge').innerHTML = cfg.badge;
+
+    // Update title
+    document.getElementById('certTitle').textContent = cfg.title;
+
+    // Update player name
+    document.getElementById('certPlayerName').textContent = playerName;
+
+    // Update body
+    document.getElementById('certBody').innerHTML = cfg.bodyFn(playerName, eventName);
+
+    // Update date
+    document.getElementById('certDate').textContent = 'Date: ' + formatDate(dateVal);
+  }
+
+  function quickFill(type, player, event) {
+    document.getElementById('certType').value = type;
+    document.getElementById('playerName').value = player;
+    const sel = document.getElementById('eventName');
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === event) { sel.selectedIndex = i; break; }
+    }
+    updateCertificate();
+  }
+
+  // Attach quick-fill buttons via data attributes
+  document.querySelectorAll('.btn-example[data-type]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      quickFill(this.dataset.type, this.dataset.player, this.dataset.event);
+    });
+  });
+
+  // Responsive scaling
+  function scalePreview() {
+    const wrapper = document.querySelector('.preview-wrapper');
+    const container = document.getElementById('scaleContainer');
+    if (!wrapper || !container) return;
+    const certWidth = 1050;
+    const availableWidth = wrapper.clientWidth - 40;
+    const scale = Math.min(1, availableWidth / certWidth);
+    container.style.transform = `scale(${scale})`;
+    container.style.transformOrigin = 'top center';
+    // Adjust wrapper height so it doesn't leave huge gap
+    container.style.marginBottom = `-${(1 - scale) * 743 * 0.5}px`;
+  }
+
+  window.addEventListener('resize', scalePreview);
+  window.addEventListener('load', () => { scalePreview(); updateCertificate(); });
+</script>
+
+</body>
+</html>
