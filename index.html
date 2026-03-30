@@ -637,6 +637,7 @@
     <button class="tab-btn" data-tab="men-s">🏓 Men's Singles (15-55)</button>
     <button class="tab-btn" data-tab="women-s">👩 Women's Singles (15-55)</button>
     <button class="tab-btn" data-tab="men-d">🤝 Men's Doubles (15-55)</button>
+    <button class="tab-btn" data-tab="women-d">👩 Women's Doubles (15-55)</button>
     <button class="tab-btn" data-tab="mixed-d">🔀 Mixed Doubles (15-55)</button>
     <button class="tab-btn" data-tab="senior-s">🏆 Senior Men's (55+)</button>
     <button class="tab-btn" data-tab="senior-d">🤝 Senior Men's Doubles (55+)</button>
@@ -660,6 +661,7 @@
   <section class="tab-panel" id="tab-men-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-women-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-men-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-women-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-mixed-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
@@ -883,6 +885,7 @@ function buildFixtures(participants) {
     'men-s':       { title: "Men's Singles (15-55)",   players: cat('15-55','Male','Singles'),       type: 'singles' },
     'women-s':     { title: "Women's Singles (15-55)", players: cat('15-55','Female','Singles'),     type: 'singles' },
     'men-d':       { title: "Men's Doubles (15-55)",   players: cat('15-55','Male','Doubles'),       type: 'doubles' },
+    'women-d':     { title: "Women's Doubles (15-55)", players: cat('15-55','Female','Doubles'),     type: 'doubles' },
     'mixed-d':     { title: 'Mixed Doubles (15-55)',   players: mixedDoubles,                         type: 'doubles' },
     'senior-s':    { title: "Senior Men's Singles (55+)", players: cat('55+','Male','Singles'),      type: 'singles' },
     'senior-d':    { title: "Senior Men's Doubles (55+)", players: cat('55+','Male','Doubles'),      type: 'doubles' },
@@ -1180,6 +1183,7 @@ function renderDashboard(participants) {
     { cat: "Men's Singles (15-55)",     count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Singles')).length },
     { cat: "Women's Singles (15-55)",   count: participants.filter(p => p.age_category==='15-55' && p.gender==='Female' && p.events.includes('Singles')).length },
     { cat: "Men's Doubles (15-55)",     count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Doubles')).length },
+    { cat: "Women's Doubles (15-55)",   count: participants.filter(p => p.age_category==='15-55' && p.gender==='Female' && p.events.includes('Doubles')).length },
     { cat: 'Mixed Doubles (15-55)',     count: participants.filter(p => (p.age_category==='15-55'||p.age_category==='55+') && p.events.includes('Mixed Doubles')).length },
     { cat: "Senior Men's Singles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Singles')).length },
     { cat: "Senior Men's Doubles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Doubles')).length },
@@ -1332,6 +1336,7 @@ async function loadData() {
       'men-s': fixtures['men-s'],
       'women-s': fixtures['women-s'],
       'men-d': fixtures['men-d'],
+      'women-d': fixtures['women-d'],
       'mixed-d': fixtures['mixed-d'],
       'senior-s': fixtures['senior-s'],
       'senior-d': fixtures['senior-d'],
