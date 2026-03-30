@@ -637,7 +637,8 @@
    CONSTANTS
 ═══════════════════════════════════════════════ */
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRc4Sx1XSbYhoBV2U9Ea6YqBz31ft9Lji4JumLAXlJ566zybGFWzVQBH1d-SamjLT9RgbihO7J0mn3/pub?gid=374419744&single=true&output=csv';
-const REFRESH_MS = 5 * 60 * 1000;
+const REFRESH_MS = 60 * 1000; // 1 minute
+let lastLoadTime = 0;
 
 /* ═══════════════════════════════════════════════
    CSV PARSER — handles quoted fields with commas
@@ -672,7 +673,7 @@ function parseCSV(text) {
    FETCH SHEET DATA
 ═══════════════════════════════════════════════ */
 async function fetchSheetData() {
-  const resp = await fetch(CSV_URL, { mode: 'cors' });
+  const resp = await fetch(CSV_URL, { mode: 'cors', cache: 'no-store' });
   if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
   return await resp.text();
 }
@@ -1254,6 +1255,7 @@ document.getElementById('tab-nav').addEventListener('click', e => {
    MAIN LOAD & REFRESH
 ═══════════════════════════════════════════════ */
 async function loadData() {
+  lastLoadTime = Date.now();
   const spinner = document.getElementById('spinner');
   const syncTime = document.getElementById('sync-time');
   spinner.classList.add('active');
@@ -1304,8 +1306,16 @@ async function loadData() {
 // Initial load
 loadData();
 
-// Auto-refresh every 5 minutes
+// Auto-refresh every 1 minute
 setInterval(loadData, REFRESH_MS);
+
+// Refresh immediately when tab becomes visible again after being hidden
+// (browsers throttle timers in background tabs, so we catch up on visibility change)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - lastLoadTime >= REFRESH_MS) {
+    loadData();
+  }
+});
 </script>
 </body>
 </html>
