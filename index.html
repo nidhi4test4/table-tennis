@@ -685,30 +685,73 @@ const INVALID_PARTNERS = ['', 'n/a', 'no', 'none', 'na', 'nil', '-'];
 function parseParticipants(csvText) {
   const rows = parseCSV(csvText);
   if (rows.length < 2) return [];
+
+  // Detect column indices from header row so the parser survives new columns
+  // being added to the Google Form. Falls back to original index if not found.
+  const headers = rows[0].map(h => (h || '').toLowerCase().trim());
+  function findCol(keywords, fallback) {
+    for (const kw of keywords) {
+      const idx = headers.findIndex(h => h.includes(kw));
+      if (idx !== -1) return idx;
+    }
+    return fallback;
+  }
+  const COL = {
+    timestamp: findCol(['timestamp'], 0),
+    name:      findCol(['name'], 1),
+    contact:   findCol(['contact', 'phone', 'mobile', 'whatsapp'], 2),
+    tower:     findCol(['tower', 'flat', 'block', 'wing', 'apartment'], 3),
+    ageCat:    findCol(['age category', 'age group', 'age range'], 4),
+    skill:     findCol(['skill', 'proficiency', 'play level'], 5),
+    events:    findCol(['event', 'participate'], 6),
+    partner:   findCol(['partner'], 8),
+    age:       findCol(['your age', 'how old', 'actual age', 'player age', 'age in'], 9),
+    gender:    findCol(['gender', 'sex', 'male or female', 'male/female'], 11),
+  };
+
+  // Content-based fallback for gender: find column whose non-empty values are
+  // all 'Male' or 'Female' (handles cases where the header keyword doesn't match).
+  if (COL.gender === 11) {
+    const sample = rows.slice(1, Math.min(11, rows.length));
+    const isGender = v => v === 'Male' || v === 'Female' || v === '';
+    const defaultOk = sample.some(r => (r[11] || '').trim() !== '') &&
+                      sample.every(r => isGender((r[11] || '').trim()));
+    if (!defaultOk) {
+      for (let c = 0; c < (rows[0] || []).length; c++) {
+        if (c === COL.timestamp || c === COL.name) continue;
+        const hasGender = sample.some(r => (r[c] || '').trim() !== '');
+        if (hasGender && sample.every(r => isGender((r[c] || '').trim()))) {
+          COL.gender = c;
+          break;
+        }
+      }
+    }
+  }
+
   const participants = [];
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    if (!r[1] || !r[1].trim()) continue; // skip empty name rows
+    if (!r[COL.name] || !r[COL.name].trim()) continue; // skip empty name rows
 
-    const ageRaw = (r[4] || '').trim();
+    const ageRaw = (r[COL.ageCat] || '').trim();
     let age_category = '15-55';
     if (ageRaw.includes('Under 15') || ageRaw.includes('under 15')) age_category = 'Under 15';
     else if (ageRaw.includes('55') && (ageRaw.includes('+') || ageRaw.toLowerCase().includes('senior'))) age_category = '55+';
     else if (ageRaw.includes('15')) age_category = '15-55';
 
-    const eventsRaw = (r[6] || '').toLowerCase();
+    const eventsRaw = (r[COL.events] || '').toLowerCase();
     const events = [];
     if (eventsRaw.includes('singles')) events.push('Singles');
     if (eventsRaw.includes('doubles') && !eventsRaw.includes('mixed')) events.push('Doubles');
     if (eventsRaw.includes('mixed')) events.push('Mixed Doubles');
 
-    const partnerRaw = (r[8] || '').trim();
+    const partnerRaw = (r[COL.partner] || '').trim();
     const partner = INVALID_PARTNERS.includes(partnerRaw.toLowerCase()) ? null : partnerRaw;
 
-    const genderRaw = (r[11] || '').trim();
+    const genderRaw = (r[COL.gender] || '').trim();
     const gender = genderRaw === 'Female' ? 'Female' : (genderRaw === 'Male' ? 'Male' : 'Unknown');
 
-    const skillRaw = (r[5] || '').trim();
+    const skillRaw = (r[COL.skill] || '').trim();
     let skill = 'Beginner';
     if (skillRaw.includes('Intermediate')) skill = 'Intermediate';
     else if (skillRaw.includes('Advanced')) skill = 'Advanced';
@@ -716,16 +759,16 @@ function parseParticipants(csvText) {
     else if (skillRaw.includes('Beginner')) skill = 'Beginner';
 
     participants.push({
-      name: r[1].trim(),
-      contact: (r[2] || '').trim(),
-      tower: (r[3] || '').trim(),
+      name: r[COL.name].trim(),
+      contact: (r[COL.contact] || '').trim(),
+      tower: (r[COL.tower] || '').trim(),
       age_category,
       skill,
       events,
       partner,
       gender,
-      timestamp: (r[0] || '').trim(),
-      age: (r[9] || '').trim(),
+      timestamp: (r[COL.timestamp] || '').trim(),
+      age: (r[COL.age] || '').trim(),
     });
   }
   return participants;
