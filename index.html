@@ -601,6 +601,7 @@
     <button class="tab-btn" data-tab="men-d">🤝 Men's Doubles (15-55)</button>
     <button class="tab-btn" data-tab="mixed-d">🔀 Mixed Doubles (15-55)</button>
     <button class="tab-btn" data-tab="senior-s">🏆 Senior Men's (55+)</button>
+    <button class="tab-btn" data-tab="senior-d">🤝 Senior Men's Doubles (55+)</button>
   </div>
 </nav>
 
@@ -623,6 +624,7 @@
   <section class="tab-panel" id="tab-men-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-mixed-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-senior-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
 
 </main>
 
@@ -702,10 +704,10 @@ function parseParticipants(csvText) {
     contact:   findCol(['contact', 'phone', 'mobile', 'whatsapp'], 2),
     tower:     findCol(['tower', 'flat', 'block', 'wing', 'apartment'], 3),
     ageCat:    findCol(['age category', 'age group', 'age range'], 4),
-    skill:     findCol(['skill', 'proficiency', 'play level'], 5),
+    skill:     findCol(['skill', 'proficiency', 'play level', 'current', 'level'], 5),
     events:    findCol(['event', 'participate'], 6),
     partner:   findCol(['partner'], 8),
-    age:       findCol(['your age', 'how old', 'actual age', 'player age', 'age in'], 9),
+    age:       findCol(['your age', 'how old', 'actual age', 'player age', 'age in', 'age (years)', 'age in years'], 9),
     gender:    findCol(['gender', 'sex', 'male or female', 'male/female'], 11),
   };
 
@@ -845,6 +847,7 @@ function buildFixtures(participants) {
     'men-d':       { title: "Men's Doubles (15-55)",   players: cat('15-55','Male','Doubles'),       type: 'doubles' },
     'mixed-d':     { title: 'Mixed Doubles (15-55)',   players: mixedDoubles,                         type: 'doubles' },
     'senior-s':    { title: "Senior Men's Singles (55+)", players: cat('55+','Male','Singles'),      type: 'singles' },
+    'senior-d':    { title: "Senior Men's Doubles (55+)", players: cat('55+','Male','Doubles'),      type: 'doubles' },
   };
 }
 
@@ -1127,6 +1130,7 @@ function renderDashboard(participants) {
     { cat: "Men's Doubles (15-55)",     count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Doubles')).length },
     { cat: 'Mixed Doubles (15-55)',     count: participants.filter(p => (p.age_category==='15-55'||p.age_category==='55+') && p.events.includes('Mixed Doubles')).length },
     { cat: "Senior Men's Singles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Singles')).length },
+    { cat: "Senior Men's Doubles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Doubles')).length },
   ];
 
   let summaryHtml = '<div class="fixture-section" style="margin-bottom:24px"><div class="section-title">📋 Event Summary</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Category</th><th>Participants</th></tr></thead><tbody>';
@@ -1278,6 +1282,7 @@ async function loadData() {
       'men-d': fixtures['men-d'],
       'mixed-d': fixtures['mixed-d'],
       'senior-s': fixtures['senior-s'],
+      'senior-d': fixtures['senior-d'],
     };
 
     Object.entries(tabMap).forEach(([key, data]) => {
