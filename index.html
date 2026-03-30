@@ -681,7 +681,9 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRc4Sx1XSbYhoBV2U9Ea6YqBz31ft9Lji4JumLAXlJ566zybGFWzVQBH1d-SamjLT9RgbihO7J0mn3/pub?gid=374419744&single=true&output=csv';
 const REFRESH_MS = 5 * 60 * 1000;
 
-// Manual participant overrides – added only when not already found in the sheet
+// Manual participant overrides – these players are registered to play but may not yet
+// appear correctly in the Google Sheet (e.g., pending data entry or column mismatch).
+// Each entry is added only when that name is not already found in the sheet data.
 const MANUAL_OVERRIDES = [
   { name: 'Urmil', contact: '', tower: '', age_category: '15-55', skill: 'Beginner',
     events: ['Singles', 'Doubles'], partner: 'Mohini Nigam', gender: 'Female', timestamp: '', age: '' },
@@ -737,6 +739,13 @@ async function fetchSheetData() {
 ═══════════════════════════════════════════════ */
 const INVALID_PARTNERS = ['', 'n/a', 'no', 'none', 'na', 'nil', '-'];
 
+function normalizeGender(raw) {
+  const v = (raw || '').trim().toLowerCase();
+  if (v === 'female' || v === 'woman' || v === 'girl') return 'Female';
+  if (v === 'male' || v === 'man' || v === 'boy') return 'Male';
+  return 'Unknown';
+}
+
 function parseParticipants(csvText) {
   const rows = parseCSV(csvText);
   if (rows.length < 2) return [];
@@ -768,7 +777,7 @@ function parseParticipants(csvText) {
   // all 'Male' or 'Female' (handles cases where the header keyword doesn't match).
   if (COL.gender === 11) {
     const sample = rows.slice(1, Math.min(11, rows.length));
-    const isGender = v => { const vl = v.toLowerCase(); return vl === 'male' || vl === 'female' || v === ''; };
+    const isGender = v => { const n = normalizeGender(v); return n === 'Male' || n === 'Female' || v.trim() === ''; };
     const defaultOk = sample.some(r => (r[11] || '').trim() !== '') &&
                       sample.every(r => isGender((r[11] || '').trim()));
     if (!defaultOk) {
@@ -804,9 +813,7 @@ function parseParticipants(csvText) {
     const partner = INVALID_PARTNERS.includes(partnerRaw.toLowerCase()) ? null : partnerRaw;
 
     const genderRaw = (r[COL.gender] || '').trim();
-    const genderNorm = genderRaw.toLowerCase();
-    const gender = (genderNorm === 'female' || genderNorm === 'woman' || genderNorm === 'girl') ? 'Female' :
-                   (genderNorm === 'male' || genderNorm === 'man' || genderNorm === 'boy') ? 'Male' : 'Unknown';
+    const gender = normalizeGender(genderRaw);
 
     const skillRaw = (r[COL.skill] || '').trim();
     let skill = 'Beginner';
