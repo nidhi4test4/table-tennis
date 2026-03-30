@@ -596,12 +596,16 @@
     <button class="tab-btn" data-tab="u15-boys-s">🏓 U15 Boys Singles</button>
     <button class="tab-btn" data-tab="u15-girls-s">👧 U15 Girls Singles</button>
     <button class="tab-btn" data-tab="u15-boys-d">🤝 U15 Boys Doubles</button>
+    <button class="tab-btn" data-tab="u15-girls-d">🤝 U15 Girls Doubles</button>
     <button class="tab-btn" data-tab="men-s">🏓 Men's Singles (15-55)</button>
     <button class="tab-btn" data-tab="women-s">👩 Women's Singles (15-55)</button>
     <button class="tab-btn" data-tab="men-d">🤝 Men's Doubles (15-55)</button>
+    <button class="tab-btn" data-tab="women-d">🤝 Women's Doubles (15-55)</button>
     <button class="tab-btn" data-tab="mixed-d">🔀 Mixed Doubles (15-55)</button>
-    <button class="tab-btn" data-tab="senior-s">🏆 Senior Men's (55+)</button>
+    <button class="tab-btn" data-tab="senior-s">🏆 Senior Men's Singles (55+)</button>
+    <button class="tab-btn" data-tab="senior-ws">🏆 Senior Women's Singles (55+)</button>
     <button class="tab-btn" data-tab="senior-d">🤝 Senior Men's Doubles (55+)</button>
+    <button class="tab-btn" data-tab="senior-wd">🤝 Senior Women's Doubles (55+)</button>
   </div>
 </nav>
 
@@ -619,12 +623,16 @@
   <section class="tab-panel" id="tab-u15-boys-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-u15-girls-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-u15-boys-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-u15-girls-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-men-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-women-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-men-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-women-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-mixed-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-senior-ws"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-senior-wd"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
 
 </main>
 
@@ -839,15 +847,19 @@ function buildFixtures(participants) {
   );
 
   return {
-    'u15-boys-s':  { title: 'U15 Boys Singles',        players: cat('Under 15','Male','Singles'),    type: 'singles' },
-    'u15-girls-s': { title: 'U15 Girls Singles',       players: cat('Under 15','Female','Singles'),  type: 'singles' },
-    'u15-boys-d':  { title: 'U15 Boys Doubles',        players: cat('Under 15','Male','Doubles'),    type: 'doubles' },
-    'men-s':       { title: "Men's Singles (15-55)",   players: cat('15-55','Male','Singles'),       type: 'singles' },
-    'women-s':     { title: "Women's Singles (15-55)", players: cat('15-55','Female','Singles'),     type: 'singles' },
-    'men-d':       { title: "Men's Doubles (15-55)",   players: cat('15-55','Male','Doubles'),       type: 'doubles' },
-    'mixed-d':     { title: 'Mixed Doubles (15-55)',   players: mixedDoubles,                         type: 'doubles' },
-    'senior-s':    { title: "Senior Men's Singles (55+)", players: cat('55+','Male','Singles'),      type: 'singles' },
-    'senior-d':    { title: "Senior Men's Doubles (55+)", players: cat('55+','Male','Doubles'),      type: 'doubles' },
+    'u15-boys-s':  { title: 'U15 Boys Singles',           players: cat('Under 15','Male','Singles'),    type: 'singles' },
+    'u15-girls-s': { title: 'U15 Girls Singles',          players: cat('Under 15','Female','Singles'),  type: 'singles' },
+    'u15-boys-d':  { title: 'U15 Boys Doubles',           players: cat('Under 15','Male','Doubles'),    type: 'doubles' },
+    'u15-girls-d': { title: 'U15 Girls Doubles',          players: cat('Under 15','Female','Doubles'),  type: 'doubles' },
+    'men-s':       { title: "Men's Singles (15-55)",      players: cat('15-55','Male','Singles'),       type: 'singles' },
+    'women-s':     { title: "Women's Singles (15-55)",    players: cat('15-55','Female','Singles'),     type: 'singles' },
+    'men-d':       { title: "Men's Doubles (15-55)",      players: cat('15-55','Male','Doubles'),       type: 'doubles' },
+    'women-d':     { title: "Women's Doubles (15-55)",    players: cat('15-55','Female','Doubles'),     type: 'doubles' },
+    'mixed-d':     { title: 'Mixed Doubles (15-55+)',     players: mixedDoubles,                        type: 'doubles' },
+    'senior-s':    { title: "Senior Men's Singles (55+)", players: cat('55+','Male','Singles'),         type: 'singles' },
+    'senior-ws':   { title: "Senior Women's Singles (55+)", players: cat('55+','Female','Singles'),    type: 'singles' },
+    'senior-d':    { title: "Senior Men's Doubles (55+)", players: cat('55+','Male','Doubles'),         type: 'doubles' },
+    'senior-wd':   { title: "Senior Women's Doubles (55+)", players: cat('55+','Female','Doubles'),    type: 'doubles' },
   };
 }
 
@@ -1122,15 +1134,19 @@ function renderDashboard(participants) {
 
   // Event Summary Table
   const summaryRows = [
-    { cat: 'U15 Boys Singles',          count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Male' && p.events.includes('Singles')).length },
-    { cat: 'U15 Girls Singles',         count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Female' && p.events.includes('Singles')).length },
-    { cat: 'U15 Boys Doubles',          count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Male' && p.events.includes('Doubles')).length },
-    { cat: "Men's Singles (15-55)",     count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Singles')).length },
-    { cat: "Women's Singles (15-55)",   count: participants.filter(p => p.age_category==='15-55' && p.gender==='Female' && p.events.includes('Singles')).length },
-    { cat: "Men's Doubles (15-55)",     count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Doubles')).length },
-    { cat: 'Mixed Doubles (15-55)',     count: participants.filter(p => (p.age_category==='15-55'||p.age_category==='55+') && p.events.includes('Mixed Doubles')).length },
-    { cat: "Senior Men's Singles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Singles')).length },
-    { cat: "Senior Men's Doubles (55+)",count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Doubles')).length },
+    { cat: 'U15 Boys Singles',             count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Male' && p.events.includes('Singles')).length },
+    { cat: 'U15 Girls Singles',            count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Female' && p.events.includes('Singles')).length },
+    { cat: 'U15 Boys Doubles',             count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Male' && p.events.includes('Doubles')).length },
+    { cat: 'U15 Girls Doubles',            count: participants.filter(p => p.age_category==='Under 15' && p.gender==='Female' && p.events.includes('Doubles')).length },
+    { cat: "Men's Singles (15-55)",        count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Singles')).length },
+    { cat: "Women's Singles (15-55)",      count: participants.filter(p => p.age_category==='15-55' && p.gender==='Female' && p.events.includes('Singles')).length },
+    { cat: "Men's Doubles (15-55)",        count: participants.filter(p => p.age_category==='15-55' && p.gender==='Male' && p.events.includes('Doubles')).length },
+    { cat: "Women's Doubles (15-55)",      count: participants.filter(p => p.age_category==='15-55' && p.gender==='Female' && p.events.includes('Doubles')).length },
+    { cat: 'Mixed Doubles (15-55+)',       count: participants.filter(p => (p.age_category==='15-55'||p.age_category==='55+') && p.events.includes('Mixed Doubles')).length },
+    { cat: "Senior Men's Singles (55+)",   count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Singles')).length },
+    { cat: "Senior Women's Singles (55+)", count: participants.filter(p => p.age_category==='55+' && p.gender==='Female' && p.events.includes('Singles')).length },
+    { cat: "Senior Men's Doubles (55+)",   count: participants.filter(p => p.age_category==='55+' && p.gender==='Male' && p.events.includes('Doubles')).length },
+    { cat: "Senior Women's Doubles (55+)", count: participants.filter(p => p.age_category==='55+' && p.gender==='Female' && p.events.includes('Doubles')).length },
   ];
 
   let summaryHtml = '<div class="fixture-section" style="margin-bottom:24px"><div class="section-title">📋 Event Summary</div><div class="table-wrap"><table><thead><tr><th>#</th><th>Category</th><th>Participants</th></tr></thead><tbody>';
