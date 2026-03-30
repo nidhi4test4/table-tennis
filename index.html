@@ -686,26 +686,31 @@ const REFRESH_MS = 5 * 60 * 1000;
 ═══════════════════════════════════════════════ */
 function parseCSV(text) {
   const rows = [];
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  for (const line of lines) {
-    if (!line.trim()) continue;
+  const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let i = 0;
+  while (i < normalized.length) {
     const fields = [];
     let cur = '';
     let inQuote = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
+    while (i < normalized.length) {
+      const ch = normalized[i];
       if (ch === '"') {
-        if (inQuote && line[i + 1] === '"') { cur += '"'; i++; }
-        else { inQuote = !inQuote; }
+        if (inQuote && i + 1 < normalized.length && normalized[i + 1] === '"') { cur += '"'; i += 2; }
+        else { inQuote = !inQuote; i++; }
       } else if (ch === ',' && !inQuote) {
         fields.push(cur.trim());
         cur = '';
+        i++;
+      } else if (ch === '\n' && !inQuote) {
+        i++;
+        break; // end of row
       } else {
         cur += ch;
+        i++;
       }
     }
     fields.push(cur.trim());
-    rows.push(fields);
+    if (fields.some(f => f !== '')) rows.push(fields);
   }
   return rows;
 }
@@ -783,8 +788,8 @@ function parseParticipants(csvText) {
 
     const eventsRaw = (r[COL.events] || '').toLowerCase();
     const events = [];
-    if (eventsRaw.includes('singles')) events.push('Singles');
-    if (eventsRaw.includes('doubles') && !eventsRaw.includes('mixed')) events.push('Doubles');
+    if (eventsRaw.includes('single')) events.push('Singles');
+    if (eventsRaw.includes('double') && !eventsRaw.includes('mixed')) events.push('Doubles');
     if (eventsRaw.includes('mixed')) events.push('Mixed Doubles');
 
     const partnerRaw = (r[COL.partner] || '').trim();
