@@ -555,6 +555,44 @@
   }
   .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
 
+  /* ─── REGISTERED PLAYERS LIST ─── */
+  .registered-players {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .registered-players-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-grey);
+    margin-bottom: 12px;
+  }
+  .player-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .player-chip {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--card-border);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .player-chip-num {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.68rem;
+  }
+
   /* ─── FOOTER ─── */
   .footer {
     text-align: center;
@@ -1045,12 +1083,26 @@ function renderFixture(categoryKey, data) {
     formatLabel = `${drawSize}-Draw Knockout (${count} ${type === 'doubles' ? 'pairs' : 'players'}, ${drawSize - count} BYEs)`;
   }
 
+  // Build registered players chips (show individual names for both singles & doubles)
+  let playersListHtml = '';
+  if (players.length > 0) {
+    const chips = players.map((p, i) =>
+      `<div class="player-chip"><span class="player-chip-num">${i + 1}</span>${esc(p.name)}</div>`
+    ).join('');
+    playersListHtml = `
+    <div class="registered-players">
+      <div class="registered-players-title">👥 Registered Players (${players.length})</div>
+      <div class="player-chips">${chips}</div>
+    </div>`;
+  }
+
   return `
   <div class="fixture-section">
     <div class="fixture-header">
       <div class="fixture-title">${esc(title)}</div>
       <div class="fixture-count">${formatLabel}</div>
     </div>
+    ${playersListHtml}
     ${fixtureHtml}
   </div>`;
 }
