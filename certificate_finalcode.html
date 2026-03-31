@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Printable Certificate — Mapsko Casabella Table Tennis Tournament</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 215, 120, 0.12), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(120, 170, 255, 0.12), transparent 32%),
+        linear-gradient(135deg, #090d2a 0%, #101a4d 55%, #071022 100%);
+      color: #e8e8e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ========== CONTROLS PANEL (PRINT ONLY) ========== */
+    .controls-wrapper {
+      background: #0d1540;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+      border-bottom: 2px solid #1e2d6e;
+    }
+    .btn-print {
+      background: linear-gradient(135deg, #c9a84c, #e8c96a);
+      color: #0a0e2e;
+      border: none;
+      padding: 12px 35px;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 15px rgba(201,168,76,0.35);
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(201,168,76,0.5);
+    }
+
+    /* ========== PREVIEW CONTAINER ========== */
+    .preview-wrapper {
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .preview-scale-container {
+      transform-origin: top center;
+    }
+
+    /* ========== CERTIFICATE ========== */
+    .certificate {
+      width: 1050px;
+      height: 743px;
+      position: relative;
+      background:
+        linear-gradient(170deg, #fffdf6 0%, #fff8e7 40%, #fffef9 100%);
+      font-family: 'Playfair Display', 'Georgia', serif;
+      overflow: hidden;
+      page-break-inside: avoid;
+      --cert-color: #c9a84c; /* Default Gold Theme */
+      --star-color: #b88f34;
+      box-shadow: 0 24px 55px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Ping-pong watermark pattern */
+    .certificate::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.035) 4px, transparent 4px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Diagonal watermark text */
+    .certificate .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-35deg);
+      font-size: 68px;
+      font-weight: 700;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: rgba(201,168,76,0.065);
+      white-space: nowrap;
+      letter-spacing: 12px;
+      pointer-events: none;
+      z-index: 1;
+      text-transform: uppercase;
+      user-select: none;
+    }
+
+    /* ---- BORDERS ---- */
+    .certificate .border-outer {
+      position: absolute;
+      inset: 12px;
+      border: 3px solid var(--cert-color);
+      z-index: 2;
+    }
+    .certificate .border-inner {
+      position: absolute;
+      inset: 20px;
+      border: 1.5px solid var(--cert-color);
+      z-index: 2;
+    }
+
+    /* Corner ornaments */
+    .certificate .corner {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      z-index: 3;
+      font-size: 26px;
+      line-height: 1;
+      color: var(--cert-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .certificate .corner-tl { top: 6px; left: 6px; }
+    .certificate .corner-tr { top: 6px; right: 6px; transform: scaleX(-1); }
+    .certificate .corner-bl { bottom: 6px; left: 6px; transform: scaleY(-1); }
+    .certificate .corner-br { bottom: 6px; right: 6px; transform: scale(-1); }
+
+    /* ---- CONTENT AREA ---- */
+    .certificate .cert-content {
+      position: absolute;
+      inset: 28px;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+    }
+
+    /* TOP SECTION (UPDATED FOR LOGO AND FONT) */
+    .cert-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .cert-org-logo-img {
+      height: 75px; /* Adjust based on your uploaded logo */
+      width: auto;
+    }
+    .cert-header-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cert-org-name {
+      font-family: 'Georgia', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f457a;
+      font-variant: small-caps; /* Gives the larger first-letter effect */
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+      line-height: 1;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    .cert-org-tagline {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #2f3a50;
+      font-weight: 600;
+    }
+
+    /* DIVIDER */
+    .cert-divider {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .cert-divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--cert-color), transparent);
+    }
+    .cert-divider-stars {
+      color: var(--star-color);
+      font-size: 13px;
+      letter-spacing: 7px;
+      line-height: 1;
+      transform: translateY(-1px);
+    }
+
+    /* TITLE */
+    .cert-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: #9d0f2f;
+      background: none;
+      -webkit-background-clip: border-box;
+      background-clip: border-box;
+      -webkit-text-fill-color: #9d0f2f;
+      -webkit-text-stroke: 0.7px #5c0016;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      text-align: center;
+      margin: -14px 0 -2px;
+      text-shadow:
+        0 1px 0 rgba(255, 228, 234, 0.92),
+        0 2px 0 rgba(122, 12, 36, 0.55),
+        0 0 8px rgba(255, 198, 212, 0.55),
+        0 10px 18px rgba(74, 4, 20, 0.28);
+      position: relative;
+    }
+
+    .cert-title::after {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -15px;
+      font-size: 13px;
+      letter-spacing: 7px;
+      color: var(--star-color);
+      -webkit-text-fill-color: initial;
+      text-shadow: none;
+    }
+
+    /* INTRO */
+    .cert-intro {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 18px;
+      color: #252f40;
+      text-align: center;
+      font-style: italic;
+      letter-spacing: 0.5px;
+      margin-top: -4px;
+    }
+
+    /* MANUAL FILL LINES */
+    .manual-fill {
+      display: inline-block;
+      border-bottom: 2px solid #1f2b45;
+      min-height: 20px;
+    }
+    .name-fill {
+      width: 590px;
+    }
+    .position-fill {
+      width: 220px;
+      margin: 0 10px;
+    }
+    .category-fill {
+      width: 340px;
+    }
+
+    .fill-row {
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .fill-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.7px;
+      color: #1f2a40;
+      text-transform: uppercase;
+    }
+
+    /* BODY TEXT */
+    .cert-body {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 17px;
+      color: #1f2430;
+      text-align: center;
+      line-height: 1.8;
+      width: 100%;
+      max-width: 860px;
+      margin: 18px auto 0;
+      padding: 18px 28px 16px;
+      border: 1px solid rgba(201, 168, 76, 0.5);
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 10px;
+    }
+    .cert-body strong {
+      color: #13215f;
+      font-weight: 700;
+    }
+
+    .achievement-options {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      color: #18253f;
+      letter-spacing: 0.4px;
+    }
+
+    .option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .tick-box {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #1d2940;
+      border-radius: 3px;
+      display: inline-block;
+      background: #fff;
+    }
+
+    /* BOTTOM SECTION */
+    .cert-bottom {
+      width: 100%;
+      margin-top: 14px;
+    }
+    
+    /* Signatures */
+    .cert-signatures {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 100%;
+      padding: 0 60px;
+    }
+    .cert-sig {
+      text-align: center;
+      width: 220px;
+    }
+    .cert-sig-line {
+      width: 100%;
+      height: 1.5px;
+      background: #444;
+      margin-bottom: 8px;
+    }
+    .cert-sig-label {
+      font-family: 'Poppins', sans-serif;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #2a3448;
+      font-weight: 700;
+    }
+
+    /* Official seal */
+    .cert-seal {
+      width: 126px;
+      height: 126px;
+      border-radius: 50%;
+      border: 3px solid #b7882b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        radial-gradient(circle at 30% 28%, #fff4c7 0%, #f5d77b 40%, #d3a744 74%, #9b7424 100%);
+      position: relative;
+      box-shadow: 0 8px 20px rgba(116, 86, 23, 0.3);
+    }
+    .cert-seal::before {
+      content: '';
+      position: absolute;
+      inset: 9px;
+      border-radius: 50%;
+      border: 1px dashed #b7882b;
+      background: linear-gradient(180deg, #fffaf0 0%, #f7ebc9 100%);
+    }
+    .cert-seal-emoji {
+      font-size: 26px;
+      position: relative;
+      z-index: 1;
+      line-height: 1;
+    }
+    .cert-seal-text {
+      font-family: 'Poppins', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #2f2a1f;
+      line-height: 1.15;
+      margin-top: 3px;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    /* Paddle decorations on sides */
+    .cert-deco-left,
+    .cert-deco-right {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 28px;
+      opacity: 0.12;
+      z-index: 3;
+      writing-mode: vertical-rl;
+      letter-spacing: 8px;
+      color: var(--cert-color);
+    }
+    .cert-deco-left { left: 30px; }
+    .cert-deco-right { right: 30px; transform: translateY(-50%) rotate(180deg); }
+
+    /* ========== PRINT STYLES ========== */
+    @media print {
+      body { background: white; }
+      .controls-wrapper { display: none !important; }
+      .preview-wrapper { padding: 0; display: block; }
+      .preview-scale-container {
+        transform: none !important;
+        width: auto !important;
+        margin: 0 !important;
+      }
+      .certificate {
+        width: 297mm;
+        height: 210mm;
+        page-break-inside: avoid;
+        box-shadow: none;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+    }
+
+    /* ========== RESPONSIVE SCALING ========== */
+    @media (max-width: 1120px) { .preview-scale-container { transform: scale(0.82); } }
+    @media (max-width: 900px) { .preview-scale-container { transform: scale(0.65); } }
+    @media (max-width: 700px) { .preview-scale-container { transform: scale(0.48); } }
+    @media (max-width: 500px) { .preview-scale-container { transform: scale(0.35); } }
+  </style>
+</head>
+<body>
+
+
+<div class="preview-wrapper">
+  <div class="preview-scale-container" id="scaleContainer">
+
+    <div class="certificate" id="certificate">
+      <div class="watermark">Mapsko Casabella</div>
+
+      <div class="border-outer"></div>
+      <div class="border-inner"></div>
+
+      <div class="corner corner-tl">❧</div>
+      <div class="corner corner-tr">❧</div>
+      <div class="corner corner-bl">❧</div>
+      <div class="corner corner-br">❧</div>
+
+      <div class="cert-deco-left">🏓 🏓 🏓</div>
+      <div class="cert-deco-right">🏓 🏓 🏓</div>
+
+      <div class="cert-content">
+
+        <div class="cert-top">
+          <img src="logo.jpg" alt="Mapsko Casabella Logo" class="cert-org-logo-img" onerror="this.style.display='none'">
+          
+          <div class="cert-header-text">
+            <div class="cert-org-name">Mapsko Casabella Owners Association</div>
+            <div class="cert-org-tagline">Table Tennis Tournament April 2026</div>
+          </div>
+        </div>
+
+        <div class="cert-divider">
+          <div class="cert-divider-line"></div>
+          <div class="cert-divider-stars">✦ ✦ ✦</div>
+          <div class="cert-divider-line"></div>
+        </div>
+
+        <div class="cert-title">Certificate of Achievement</div>
+
+        <div class="cert-intro">This certificate is proudly awarded to</div>
+
+        <div class="fill-row">
+          <span class="manual-fill name-fill"></span>
+        </div>
+
+        <div class="cert-body">
+      For outstanding performance and sportsmanship in the
+      <span class="manual-fill category-fill"></span> category at the
+      <strong>Mapsko Casabella Table Tennis Tournament</strong>
+      <br>
+      This participant is recognized as:
+
+      <div class="achievement-options">
+        <span class="option"><span class="tick-box"></span> Winner</span>
+        <span class="option"><span class="tick-box"></span> Runner-Up</span>
+        <span class="option"><span class="tick-box"></span> Participation</span>
+      </div>
+    </div>
+
+        <div class="cert-bottom">
+          <div class="cert-signatures">
+            <div class="cert-sig">
+              <div class="cert-sig-line"></div>
+              <div class="cert-sig-label">Secretary</div>
+            </div>
+            
+            
+            <div class="cert-seal">
+              <div class="cert-seal-emoji">🏓</div>
+              <div class="cert-seal-text">MAPSKO<br>CASABELLA<br>2026</div>
+            </div>
+            
+            <div class="cert-sig">
+              <div class="cert-sig-line"></div>
+              <div class="cert-sig-label">President</div>
+            </div>
+          </div>
+        </div>
+
+      </div></div></div></div><script>
+  // Responsive scaling to fit screen preview without affecting print size
+  function scalePreview() {
+    const wrapper = document.querySelector('.preview-wrapper');
+    const container = document.getElementById('scaleContainer');
+    if (!wrapper || !container) return;
+    const certWidth = 1050;
+    const availableWidth = wrapper.clientWidth - 40;
+    const scale = Math.min(1, availableWidth / certWidth);
+    container.style.transform = `scale(${scale})`;
+    // Adjust wrapper gap
+    container.style.marginBottom = `-${(1 - scale) * 743}px`;
+  }
+
+  window.addEventListener('resize', scalePreview);
+  window.addEventListener('load', scalePreview);
+</script>
+
+</body>
+</html>
