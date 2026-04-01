@@ -879,13 +879,13 @@ function hashString(str) {
 }
 
 function seededRng(seed) {
-  let t = seed >>> 0;
+  let state = seed >>> 0;
   return () => {
-    t += 0x6D2B79F5;
-    let r = t;
-    r = Math.imul(r ^ (r >>> 15), r | 1);
-    r ^= r + Math.imul(r ^ (r >>> 7), r | 61);
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    state += 0x6D2B79F5;
+    let value = state;
+    value = Math.imul(value ^ (value >>> 15), value | 1);
+    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
 }
 
@@ -921,7 +921,7 @@ function findSeededEntries(entries, seedNames) {
 }
 
 function seedPositions(drawSize) {
-  const bits = Math.log2(drawSize);
+  const bits = Math.floor(Math.log2(drawSize));
   const positions = [];
   for (let i = 0; i < drawSize; i++) {
     let rev = 0;
