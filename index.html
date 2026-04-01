@@ -592,6 +592,98 @@
     font-size: 0.68rem;
   }
 
+  /* ─── CERTIFICATE LIST TAB ─── */
+  .cert-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .cert-stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 18px 14px;
+    text-align: center;
+  }
+  .cert-stat-val {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .cert-stat-label {
+    font-size: 0.72rem;
+    color: var(--text-grey);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .cert-list-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .cert-list-header {
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-grey);
+    border-bottom: 1px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cert-list-header span { color: var(--gold); }
+  .cert-table { width: 100%; border-collapse: collapse; }
+  .cert-table th, .cert-table td {
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 0.82rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .cert-table th {
+    font-size: 0.72rem;
+    color: var(--text-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .cert-table tbody tr:hover { background: rgba(255,255,255,0.04); }
+  .cert-table tbody tr:last-child td { border-bottom: none; }
+  .badge-unregistered { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .cert-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+  .cert-search {
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+  .cert-print-btn {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+  .cert-print-btn:hover { opacity: 0.85; }
+
   /* ─── FOOTER ─── */
   .footer {
     text-align: center;
@@ -658,6 +750,7 @@
     <button class="tab-btn" data-tab="mixed-d">🔀 Mixed Doubles (15-55)</button>
     <button class="tab-btn" data-tab="senior-s">🏆 Senior Men's (55+)</button>
     <button class="tab-btn" data-tab="senior-d">🤝 Senior Men's Doubles (55+)</button>
+    <button class="tab-btn" data-tab="certificates">🎓 Certificate List</button>
   </div>
 </nav>
 
@@ -682,6 +775,7 @@
   <section class="tab-panel" id="tab-mixed-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-s"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
   <section class="tab-panel" id="tab-senior-d"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
+  <section class="tab-panel" id="tab-certificates"><div class="loading-screen"><div class="big-spinner"></div><p>Loading…</p></div></section>
 
 </main>
 
@@ -1343,6 +1437,22 @@ function setupFilters() {
 }
 
 /* ═══════════════════════════════════════════════
+   FILTER CERTIFICATE TABLE
+═══════════════════════════════════════════════ */
+function setupCertSearch() {
+  const input = document.getElementById('cert-search');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase();
+    const rows = document.querySelectorAll('#cert-tbody tr');
+    rows.forEach(row => {
+      const name = (row.dataset.certname || '');
+      row.style.display = !q || name.includes(q) ? '' : 'none';
+    });
+  });
+}
+
+/* ═══════════════════════════════════════════════
    TAB SWITCHING
 ═══════════════════════════════════════════════ */
 let currentTab = 'dashboard';
@@ -1462,6 +1572,176 @@ ${sectionsHtml}
 }
 
 /* ═══════════════════════════════════════════════
+   RENDER CERTIFICATE LIST
+   Shows every unique player who participated —
+   registered participants PLUS unregistered
+   partners (named in a partner field but never
+   filled in a registration form themselves).
+═══════════════════════════════════════════════ */
+function renderCertificateList(participants) {
+  // Build a case-insensitive set of registered names
+  const registeredSet = new Set(participants.map(p => p.name.toLowerCase().trim()));
+
+  // Collect unregistered partners
+  const unregisteredMap = {}; // lower-name → display name
+  participants.forEach(p => {
+    if (!p.partner) return;
+    const key = p.partner.toLowerCase().trim();
+    if (!registeredSet.has(key) && !unregisteredMap[key]) {
+      unregisteredMap[key] = p.partner.trim();
+    }
+  });
+
+  // Build merged unique list (registered first, then unregistered, both sorted A-Z)
+  const registeredSorted = [...participants]
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const unregisteredSorted = Object.values(unregisteredMap)
+    .sort((a, b) => a.localeCompare(b));
+
+  const totalUnique = registeredSorted.length + unregisteredSorted.length;
+
+  // ── Summary stats ──
+  const summaryHtml = `<div class="cert-summary-grid">
+    <div class="cert-stat-card">
+      <div class="cert-stat-val" style="color:var(--gold)">${totalUnique}</div>
+      <div class="cert-stat-label">Total Unique Players</div>
+    </div>
+    <div class="cert-stat-card">
+      <div class="cert-stat-val" style="color:#22c55e">${registeredSorted.length}</div>
+      <div class="cert-stat-label">Registered Players</div>
+    </div>
+    <div class="cert-stat-card">
+      <div class="cert-stat-val" style="color:#ef4444">${unregisteredSorted.length}</div>
+      <div class="cert-stat-label">Unregistered (Partner-only)</div>
+    </div>
+  </div>`;
+
+  // ── Combined table rows ──
+  let rowNum = 0;
+  let allRows = '';
+
+  registeredSorted.forEach(p => {
+    rowNum++;
+    const evBadges = p.events.map(e =>
+      `<span class="badge badge-${e==='Singles'?'green':(e==='Doubles'?'amber':'pink')}">${esc(e)}</span>`
+    ).join(' ');
+    allRows += `<tr data-certname="${esc(p.name.toLowerCase())}">
+      <td style="color:var(--text-grey)">${rowNum}</td>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td><span class="badge badge-green">Registered</span></td>
+      <td style="font-size:0.78rem">${evBadges || '—'}</td>
+      <td style="font-size:0.78rem">${esc(p.tower) || '—'}</td>
+    </tr>`;
+  });
+
+  unregisteredSorted.forEach(name => {
+    rowNum++;
+    allRows += `<tr data-certname="${esc(name.toLowerCase())}">
+      <td style="color:var(--text-grey)">${rowNum}</td>
+      <td><strong>${esc(name)}</strong></td>
+      <td><span class="badge badge-unregistered">Partner (not registered)</span></td>
+      <td style="font-size:0.78rem">—</td>
+      <td style="font-size:0.78rem">—</td>
+    </tr>`;
+  });
+
+  const tableHtml = `<div class="cert-list-wrap">
+    <div class="cert-list-header">
+      <div>🎓 All Players — Certificate List <span>(${totalUnique} unique)</span></div>
+    </div>
+    <div class="table-wrap">
+      <table class="cert-table" id="cert-table">
+        <thead><tr><th>#</th><th>Name</th><th>Status</th><th>Events</th><th>Tower / Flat</th></tr></thead>
+        <tbody id="cert-tbody">${allRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  // ── Unregistered-only list (quick reference) ──
+  let unregRows = '';
+  if (unregisteredSorted.length > 0) {
+    unregisteredSorted.forEach((name, i) => {
+      unregRows += `<tr><td style="color:var(--text-grey)">${i+1}</td><td><strong>${esc(name)}</strong></td>
+        <td><span class="badge badge-unregistered">Partner-only</span></td></tr>`;
+    });
+  } else {
+    unregRows = `<tr><td colspan="3" style="text-align:center;color:var(--text-grey);padding:20px">✅ All partners are also registered participants.</td></tr>`;
+  }
+
+  const unregTableHtml = `<div class="cert-list-wrap">
+    <div class="cert-list-header">
+      <div>⚠️ Unregistered Players (partner-only) <span>(${unregisteredSorted.length})</span></div>
+    </div>
+    <div class="table-wrap">
+      <table class="cert-table">
+        <thead><tr><th>#</th><th>Name</th><th>Status</th></tr></thead>
+        <tbody>${unregRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  return `<div class="fixture-section">
+    <div class="fixture-header">
+      <div class="fixture-title">🎓 Certificate List</div>
+      <div class="fixture-count">${totalUnique} unique players</div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-grey);margin-bottom:18px">
+      Everyone who participated in the tournament — including partners who weren't directly registered — so you can issue participation certificates to all of them.
+    </p>
+    ${summaryHtml}
+    <div class="cert-actions">
+      <input class="filter-input cert-search" type="text" id="cert-search" placeholder="🔍 Search player name…">
+      <button class="cert-print-btn" onclick="printCertificateList()">🖨️ Print / Export</button>
+    </div>
+    ${tableHtml}
+    ${unregTableHtml}
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════
+   PRINT CERTIFICATE LIST
+═══════════════════════════════════════════════ */
+function printCertificateList() {
+  const table = document.getElementById('cert-table');
+  if (!table) { alert('Certificate list not loaded yet.'); return; }
+
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  let tableRows = '';
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    tableRows += `<tr>${cells.map(td => `<td>${td.textContent.trim()}</td>`).join('')}</tr>`;
+  });
+
+  const win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups to print.'); return; }
+
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Society Table Tennis Tournament 2026 – Certificate List</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; background: #fff; padding: 20px; }
+  h1 { font-size: 18px; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #555; font-size: 11px; margin-bottom: 18px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 6px 10px; border: 1px solid #ddd; font-size: 11px; text-align: left; }
+  th { background: #1a1a2e; color: #fff; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  @media print { body { padding: 10px; } }
+</style>
+</head><body>
+<h1>🏓 Society Table Tennis Tournament 2026</h1>
+<p class="subtitle">Certificate List – All Unique Players – Printed on ${new Date().toLocaleString()}</p>
+<table>
+  <thead><tr><th>#</th><th>Name</th><th>Status</th><th>Events</th><th>Tower / Flat</th></tr></thead>
+  <tbody>${tableRows}</tbody>
+</table>
+</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 500);
+}
+
+/* ═══════════════════════════════════════════════
    MAIN LOAD & REFRESH
 ═══════════════════════════════════════════════ */
 async function loadData() {
@@ -1507,6 +1787,13 @@ async function loadData() {
       const panel = document.getElementById('tab-' + key);
       if (panel) panel.innerHTML = renderFixture(key, data);
     });
+
+    // Certificate list tab
+    const certPanel = document.getElementById('tab-certificates');
+    if (certPanel) {
+      certPanel.innerHTML = renderCertificateList(participants);
+      setupCertSearch();
+    }
 
     syncTime.textContent = '🔄 Last synced: ' + formatTime(new Date());
   } catch (err) {
