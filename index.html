@@ -879,10 +879,10 @@ function hashString(str) {
 }
 
 function seededRng(seed) {
-  let state = seed >>> 0;
+  let rngState = seed >>> 0;
   return () => {
-    state += 0x6D2B79F5;
-    let value = state;
+    rngState += 0x6D2B79F5;
+    let value = rngState;
     value = Math.imul(value ^ (value >>> 15), value | 1);
     value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
@@ -899,17 +899,17 @@ function shuffleArrayWithRng(arr, rng) {
 }
 
 function buildSeedKey(categoryKey, entries) {
-  const normalized = [...entries].map(e => String(e).toLowerCase()).sort().join('|');
-  return `${SHUFFLE_SEED_VERSION}|${categoryKey}|${normalized}`;
+  const normalizedEntries = [...entries].map(e => String(e).toLowerCase()).sort().join('|');
+  return `${SHUFFLE_SEED_VERSION}|${categoryKey}|${normalizedEntries}`;
 }
 
 function findSeededEntries(entries, seedNames) {
   const seeded = [];
   const seededSet = new Set();
   seedNames.forEach(name => {
-    const needle = name.toLowerCase();
+    const seedNameLower = name.toLowerCase();
     const match = entries.find(entry =>
-      !seededSet.has(entry) && String(entry).toLowerCase().includes(needle)
+      !seededSet.has(entry) && String(entry).toLowerCase().includes(seedNameLower)
     );
     if (match) {
       seeded.push(match);
