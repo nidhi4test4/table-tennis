@@ -603,6 +603,23 @@
   }
   .footer a { color: var(--gold); text-decoration: none; }
 
+  /* ─── PRINT BUTTON ─── */
+  .print-all-btn {
+    background: var(--gold);
+    color: #000;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+  }
+  .print-all-btn:hover { opacity: 0.85; }
+
   /* ─── RESPONSIVE ─── */
   @media (max-width: 600px) {
     .main { padding: 16px 12px; }
@@ -621,6 +638,7 @@
     <p>Powered by Live Google Sheets Data</p>
   </div>
   <div class="header-right">
+    <button class="print-all-btn" onclick="printAllFixtures()">🖨️ Print All Fixtures</button>
     <span id="sync-time">Fetching data…</span>
     <div class="spinner active" id="spinner"></div>
   </div>
@@ -835,6 +853,18 @@ function parseParticipants(csvText) {
     });
   }
   return participants;
+}
+
+/* ═══════════════════════════════════════════════
+   SHUFFLE utility (Fisher-Yates)
+═══════════════════════════════════════════════ */
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 /* ═══════════════════════════════════════════════
@@ -1080,9 +1110,9 @@ function renderFixture(categoryKey, data) {
 
   if (type === 'doubles') {
     const pairs = buildPairs(players);
-    entries = pairs.map(p => p.label);
+    entries = shuffleArray(pairs.map(p => p.label));
   } else {
-    entries = players.map(p => p.name);
+    entries = shuffleArray(players.map(p => p.name));
   }
 
   const count = entries.length;
@@ -1327,6 +1357,108 @@ document.getElementById('tab-nav').addEventListener('click', e => {
   if (panel) panel.classList.add('active');
   currentTab = tab;
 });
+
+/* ═══════════════════════════════════════════════
+   PRINT ALL FIXTURES
+═══════════════════════════════════════════════ */
+function printAllFixtures() {
+  const categoryIds = [
+    'tab-u15-boys-s', 'tab-u15-girls-s', 'tab-u15-boys-d',
+    'tab-men-s', 'tab-women-s', 'tab-men-d', 'tab-women-d',
+    'tab-mixed-d', 'tab-senior-s', 'tab-senior-d'
+  ];
+
+  let sectionsHtml = '';
+  categoryIds.forEach((id, idx) => {
+    const panel = document.getElementById(id);
+    if (!panel) return;
+    const sectionEl = panel.querySelector('.fixture-section');
+    if (!sectionEl) return;
+    const title = (sectionEl.querySelector('.fixture-title') || {}).textContent || '';
+    const formatBadge = (sectionEl.querySelector('.fixture-count') || {}).textContent || '';
+
+    // Collect registered player chips
+    let playersHtml = '';
+    const chipsWrap = sectionEl.querySelector('.player-chips');
+    if (chipsWrap) {
+      const chips = Array.from(chipsWrap.querySelectorAll('.player-chip'));
+      playersHtml = `<div class="p-chips">${chips.map(c => `<span class="p-chip">${c.textContent.trim()}</span>`).join('')}</div>`;
+    }
+
+    // Collect bracket matches
+    let matchesHtml = '';
+    sectionEl.querySelectorAll('.bracket-round').forEach(roundEl => {
+      const roundName = (roundEl.querySelector('.round-header') || {}).textContent || '';
+      let matchRows = '';
+      roundEl.querySelectorAll('.bracket-match').forEach(m => {
+        const players = Array.from(m.querySelectorAll('.bracket-player')).map(p => p.textContent.trim());
+        const result = (m.querySelector('.bracket-result') || {}).textContent || '';
+        if (players.length >= 2) {
+          matchRows += `<tr><td>${players[0]}</td><td class="vs">vs</td><td>${players[1]}</td><td class="res">${result}</td></tr>`;
+        }
+      });
+      if (matchRows) {
+        matchesHtml += `<div class="round-block"><div class="round-name">${roundName}</div><table>${matchRows}</table></div>`;
+      }
+    });
+
+    // Walk-over / empty state
+    if (!matchesHtml) {
+      const stateMsg = (sectionEl.querySelector('.empty-state p') || {}).textContent || '';
+      if (stateMsg) matchesHtml = `<p class="state-msg">${stateMsg}</p>`;
+    }
+
+    const pageBreak = idx > 0 ? ' page-break' : '';
+    sectionsHtml += `<section class="cat-section${pageBreak}">
+      <div class="cat-header">
+        <span class="cat-title">${title}</span>
+        <span class="cat-badge">${formatBadge}</span>
+      </div>
+      ${playersHtml}
+      ${matchesHtml}
+    </section>`;
+  });
+
+  const win = window.open('', '_blank');
+  if (!win) { alert('Please allow pop-ups to print fixtures.'); return; }
+
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>Society Table Tennis Tournament 2026 – All Fixtures</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #111; background: #fff; padding: 20px; }
+  h1 { font-size: 18px; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #555; font-size: 11px; margin-bottom: 18px; }
+  .cat-section { margin-bottom: 28px; }
+  .page-break { page-break-before: always; }
+  .cat-header { display: flex; justify-content: space-between; align-items: center;
+    background: #1a1a2e; color: #fff; padding: 7px 12px; border-radius: 6px 6px 0 0; }
+  .cat-title { font-size: 13px; font-weight: bold; }
+  .cat-badge { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 10px; }
+  .p-chips { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 10px; border: 1px solid #ddd; border-top: none; background: #f9f9f9; }
+  .p-chip { font-size: 10px; background: #e8e8e8; border-radius: 20px; padding: 2px 8px; }
+  .round-block { margin: 8px 0; }
+  .round-name { font-weight: bold; font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; padding-left: 4px; border-left: 3px solid #c9a227; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+  td { padding: 5px 8px; border: 1px solid #ddd; font-size: 11px; }
+  td.vs { width: 30px; text-align: center; color: #888; font-size: 10px; background: #f5f5f5; }
+  td.res { width: 100px; color: #888; font-size: 10px; }
+  .state-msg { padding: 10px; color: #666; font-style: italic; border: 1px dashed #ddd; border-top: none; }
+  @media print {
+    body { padding: 10px; }
+    .page-break { page-break-before: always; }
+    a { display: none; }
+  }
+</style>
+</head><body>
+<h1>🏓 Society Table Tennis Tournament 2026</h1>
+<p class="subtitle">All Category Fixtures – Printed on ${new Date().toLocaleString()}</p>
+${sectionsHtml}
+</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => win.print(), 500);
+}
 
 /* ═══════════════════════════════════════════════
    MAIN LOAD & REFRESH
