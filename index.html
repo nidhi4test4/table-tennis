@@ -1002,6 +1002,7 @@ function renderKnockout(entries) {
       <div class="round-matches">`;
 
     round.forEach(m => {
+      if (m.p1 === 'BYE' && m.p2 === 'BYE') return; // skip empty BYE vs BYE slots
       const isBye = m.p1 === 'BYE' || m.p2 === 'BYE';
       const p1Label = m.p1 === 'BYE' ? '— BYE —' : (m.p1 === 'TBD' ? '⏳ TBD' : m.p1);
       const p2Label = m.p2 === 'BYE' ? '— BYE —' : (m.p2 === 'TBD' ? '⏳ TBD' : m.p2);
