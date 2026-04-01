@@ -903,14 +903,20 @@ function buildSeedKey(categoryKey, entries) {
   return `${SHUFFLE_SEED_VERSION}|${categoryKey}|${normalizedEntries}`;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function matchesSeedName(entry, seedName) {
+  const pattern = new RegExp(`(^|\\b)${escapeRegExp(seedName)}(\\b|$)`, 'i');
+  return pattern.test(String(entry));
+}
+
 function findSeededEntries(entries, seedNames) {
   const seeded = [];
   const seededSet = new Set();
   seedNames.forEach(name => {
-    const seedNameLower = name.toLowerCase();
-    const match = entries.find(entry =>
-      !seededSet.has(entry) && String(entry).toLowerCase().includes(seedNameLower)
-    );
+    const match = entries.find(entry => !seededSet.has(entry) && matchesSeedName(entry, name));
     if (match) {
       seeded.push(match);
       seededSet.add(match);
@@ -920,6 +926,7 @@ function findSeededEntries(entries, seedNames) {
   return { seeded, unseeded };
 }
 
+// Uses bit-reversal to distribute seeds across halves/quarters so top seeds don't meet early.
 function seedPositions(drawSize) {
   const bits = Math.floor(Math.log2(drawSize));
   const positions = [];
@@ -933,6 +940,7 @@ function seedPositions(drawSize) {
   return positions;
 }
 
+// Build bracket slots with seeded players separated (bit-reversal seed placement) and stable shuffle for others.
 function buildBracketEntries(categoryKey, entries) {
   const drawSize = nextPow2(entries.length);
   const { seeded, unseeded } = findSeededEntries(entries, SEEDED_PLAYERS);
